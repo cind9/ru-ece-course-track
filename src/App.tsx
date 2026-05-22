@@ -39,9 +39,10 @@ function App() {
     useState<PendingOverride | null>(null);
   const [addError, setAddError] = useState<string | null>(null);
   const [plannerWidth, setPlannerWidth] = useState(300);
-  const [plannerHeight, setPlannerHeight] = useState(300);
+  const [flowchartHeight, setFlowchartHeight] = useState(340);
+  const [plannerHeight, setPlannerHeight] = useState(280);
   const [electivesHeight, setElectivesHeight] = useState(200);
-  const isNarrowLayout = useMediaQuery("(max-width: 1200px)");
+  const isNarrowLayout = useMediaQuery("(max-width: 1024px)");
   const [viewportHeight, setViewportHeight] = useState(
     () => (typeof window !== "undefined" ? window.innerHeight : 800),
   );
@@ -56,13 +57,17 @@ function App() {
     () => Math.round(viewportHeight * 0.72),
     [viewportHeight],
   );
+  const flowchartMaxHeight = useMemo(
+    () => Math.round(viewportHeight * 0.55),
+    [viewportHeight],
+  );
   const plannerMaxHeight = useMemo(
     () =>
-      Math.round(viewportHeight * (isNarrowLayout ? 0.42 : 0.62)),
+      Math.round(viewportHeight * (isNarrowLayout ? 0.45 : 0.62)),
     [viewportHeight, isNarrowLayout],
   );
   const electivesMaxHeightNarrow = useMemo(
-    () => Math.round(viewportHeight * 0.38),
+    () => Math.round(viewportHeight * 0.4),
     [viewportHeight],
   );
 
@@ -70,6 +75,10 @@ function App() {
     const cap = isNarrowLayout ? electivesMaxHeightNarrow : electivesMaxHeight;
     setElectivesHeight((h) => Math.min(h, cap));
   }, [electivesMaxHeight, electivesMaxHeightNarrow, isNarrowLayout]);
+
+  useEffect(() => {
+    setFlowchartHeight((h) => Math.min(h, flowchartMaxHeight));
+  }, [flowchartMaxHeight]);
 
   useEffect(() => {
     setPlannerHeight((h) => Math.min(h, plannerMaxHeight));
@@ -267,15 +276,25 @@ function App() {
       >
         {isNarrowLayout ? (
           <>
-            <div className="app-pane app-pane--flowchart">{flowchart}</div>
             <ResizablePanel
-              edge="top"
+              edge="bottom"
+              className="app-pane app-pane--flowchart"
+              size={flowchartHeight}
+              minSize={140}
+              maxSize={flowchartMaxHeight}
+              onSizeChange={setFlowchartHeight}
+              resizeLabel="Resize flowchart — drag the bottom edge"
+            >
+              {flowchart}
+            </ResizablePanel>
+            <ResizablePanel
+              edge="bottom"
               className="planner-panel-wrap app-pane app-pane--planner"
               size={plannerHeight}
               minSize={160}
               maxSize={plannerMaxHeight}
               onSizeChange={setPlannerHeight}
-              resizeLabel="Resize semester planner — drag the bar above this section"
+              resizeLabel="Resize semester planner — drag the bottom edge"
             >
               {plannerPanel}
             </ResizablePanel>
@@ -286,7 +305,7 @@ function App() {
               minSize={100}
               maxSize={electivesMaxHeightNarrow}
               onSizeChange={setElectivesHeight}
-              resizeLabel="Resize CE electives — drag the bar above this section"
+              resizeLabel="Resize CE electives — drag the top edge"
             >
               <ElectivesPanel />
             </ResizablePanel>

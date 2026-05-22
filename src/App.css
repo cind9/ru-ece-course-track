@@ -146,54 +146,67 @@ body.resizing-row * {
   cursor: row-resize;
 }
 
+.panel-resize-edge--bottom {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 14px;
+  cursor: row-resize;
+  z-index: 50;
+}
+
 .panel-resize-edge--left:hover,
 .panel-resize-edge--top:hover,
+.panel-resize-edge--bottom:hover,
 body.resizing-col .panel-resize-edge--left,
-body.resizing-row .panel-resize-edge--top {
+body.resizing-row .panel-resize-edge--top,
+body.resizing-row .panel-resize-edge--bottom {
   background: color-mix(in srgb, var(--accent) 28%, transparent);
 }
 
-/* Narrow: flowchart, planner, and electives as three separate stacked panes */
+/* Narrow: flowchart, planner, and electives — three panes, drag bottom edge of each */
 .app-main--stacked {
   gap: 0;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.app-main--stacked > .resizable-panel {
+  width: 100%;
+  flex-shrink: 0;
+  position: relative;
 }
 
 .app-main--stacked > .app-pane--flowchart {
-  flex: 1;
-  min-height: 100px;
   min-width: 0;
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  border-bottom: 1px solid var(--border);
 }
 
 .app-main--stacked > .app-pane--flowchart .flowchart-wrapper {
-  flex: 1;
   height: 100%;
-}
-
-.app-main--stacked > .planner-panel-wrap,
-.app-main--stacked > .electives-panel-wrap {
-  width: 100%;
-  flex-shrink: 0;
-  border-bottom: 1px solid var(--border);
-}
-
-.app-main--stacked > .electives-panel-wrap {
-  border-bottom: none;
+  min-height: 0;
 }
 
 .app-main--stacked .planner-panel {
   border-left: none;
 }
 
-.app-main--stacked .panel-resize-edge--top {
-  background: color-mix(in srgb, var(--border) 40%, transparent);
+.app-main--stacked .panel-resize-edge--bottom {
+  background: color-mix(in srgb, var(--border) 55%, var(--accent) 8%);
+  box-shadow: 0 1px 0 var(--surface);
 }
 
+.app-main--stacked .panel-resize-edge--bottom:hover,
 .app-main--stacked .panel-resize-edge--top:hover {
-  background: color-mix(in srgb, var(--accent) 35%, transparent);
+  background: color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+.app-main--stacked .panel-resize-edge--top {
+  background: color-mix(in srgb, var(--border) 55%, var(--accent) 8%);
+  z-index: 50;
+  transform: none;
+  top: 0;
+  height: 12px;
 }
 
 /* Flowchart */

@@ -1,6 +1,6 @@
 import { useCallback, useRef, type ReactNode } from "react";
 
-type ResizeEdge = "left" | "top";
+type ResizeEdge = "left" | "top" | "bottom";
 
 interface ResizablePanelProps {
   edge: ResizeEdge;
@@ -54,7 +54,8 @@ export function ResizablePanel({
       if (!e.currentTarget.hasPointerCapture(e.pointerId)) return;
       const { pointer: startPtr, size: startSize } = dragRef.current;
       const current = edge === "left" ? e.clientX : e.clientY;
-      const delta = startPtr - current;
+      const delta =
+        edge === "bottom" ? current - startPtr : startPtr - current;
       onSizeChange(clamp(startSize + delta, minSize, maxSize));
     },
     [edge, minSize, maxSize, onSizeChange],
@@ -65,31 +66,38 @@ export function ResizablePanel({
       ? { width: size, minWidth: minSize, maxWidth: maxSize }
       : { height: size, minHeight: minSize, maxHeight: maxSize };
 
+  const resizeEdge = (
+    <div
+      className={`panel-resize-edge panel-resize-edge--${edge}`}
+      role="separator"
+      aria-orientation={edge === "left" ? "vertical" : "horizontal"}
+      aria-valuenow={size}
+      aria-valuemin={minSize}
+      aria-valuemax={maxSize}
+      aria-label={
+        resizeLabel ??
+        (edge === "left"
+          ? "Resize panel — drag along the left edge"
+          : edge === "top"
+            ? "Resize panel — drag along the top edge"
+            : "Resize panel — drag along the bottom edge")
+      }
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={endResize}
+      onPointerCancel={endResize}
+      onLostPointerCapture={endResize}
+    />
+  );
+
   return (
     <div
       className={`resizable-panel resizable-panel--${edge} ${className}`.trim()}
       style={panelStyle}
     >
-      <div
-        className={`panel-resize-edge panel-resize-edge--${edge}`}
-        role="separator"
-        aria-orientation={edge === "left" ? "vertical" : "horizontal"}
-        aria-valuenow={size}
-        aria-valuemin={minSize}
-        aria-valuemax={maxSize}
-        aria-label={
-          resizeLabel ??
-          (edge === "left"
-            ? "Resize panel — drag along the left edge"
-            : "Resize panel — drag along the top edge")
-        }
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={endResize}
-        onPointerCancel={endResize}
-        onLostPointerCapture={endResize}
-      />
+      {edge !== "bottom" && resizeEdge}
       {children}
+      {edge === "bottom" && resizeEdge}
     </div>
   );
 }
