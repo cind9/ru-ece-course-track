@@ -1,4 +1,4 @@
-# Rutgers CE Course Track
+# Rutgers CE Degree Planner
 
 Interactive 4-year **Computer Engineering** course flowchart with:
 
@@ -9,7 +9,34 @@ Interactive 4-year **Computer Engineering** course flowchart with:
 
 ## Live site
 
-**[Rutgers CE Course Track](https://cind9.github.io/ru-ce-course-track/)**
+**Recommended (cleaner URL):** [Rutgers CE Degree Planner](https://rutgers-ce-degree-planner.vercel.app)
+
+**GitHub Pages (after setup below):** [Rutgers CE Degree Planner](https://cind9.github.io/rutgers-ce-degree-planner/)
+
+Link previews (iMessage, Slack, Discord, etc.) use the app name **Rutgers CE Degree Planner** via Open Graph meta tags—not a generic “github.io” title.
+
+## Deploy / share
+
+### Option A — Vercel (recommended, free, no custom domain)
+
+1. Sign in at [vercel.com](https://vercel.com) and **Import** this GitHub repo.
+2. Use defaults: **Build** `npm run build`, **Output** `dist` (also set in `vercel.json`).
+3. Set the project name to **`rutgers-ce-degree-planner`** so the URL is  
+   `https://rutgers-ce-degree-planner.vercel.app`
+4. Deploy. Share that URL—it reads as the app name, not a raw `github.io` path.
+
+### Option B — GitHub Pages
+
+1. **Rename the repo** on GitHub to `rutgers-ce-degree-planner`  
+   (Settings → General → Repository name). Then update your local remote:
+   ```bash
+   git remote set-url origin https://github.com/cind9/rutgers-ce-degree-planner.git
+   ```
+2. **Enable Pages:** repo **Settings → Pages → Build and deployment → Source:** `GitHub Actions`.
+3. Push to `main`. The workflow `.github/workflows/deploy-pages.yml` runs `npm run build:pages` (base path `/rutgers-ce-degree-planner/`).
+4. Live URL: `https://cind9.github.io/rutgers-ce-degree-planner/`
+
+If Pages shows “Site not found”, Pages is not enabled or the workflow has not finished—check **Actions** and **Settings → Pages**.
 
 ## Project location
 
@@ -38,6 +65,7 @@ Open **http://localhost:5173/** in your browser.
 ## Tech stack
 
 - React + TypeScript + Vite
+- Deploy: Vercel (`npm run build`) or GitHub Pages (`npm run build:pages`)
 
 ## Credits note
 
