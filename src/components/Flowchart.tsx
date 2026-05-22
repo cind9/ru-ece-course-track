@@ -11,6 +11,13 @@ import { CourseSlot, type PendingOverride } from "./CourseSlot";
 
 const YEARS = [1, 2, 3, 4] as const;
 const TERMS = ["fall", "spring"] as const;
+const ZOOM_MIN = 0.55;
+const ZOOM_MAX = 1.75;
+const ZOOM_STEP = 0.1;
+
+function clampZoom(value: number) {
+  return Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, value));
+}
 
 export interface DrawnEdge {
   key: string;
@@ -73,6 +80,7 @@ export function Flowchart({
   const scrollRef = useAutoHideScrollbar<HTMLDivElement>();
   const [edges, setEdges] = useState<DrawnEdge[]>([]);
   const [svgSize, setSvgSize] = useState({ w: 0, h: 0 });
+  const [zoom, setZoom] = useState(1);
 
   const highlightedEdgeKeys = getHighlightedEdgeKeys(hoveredId);
   const unlockCourseIds = useMemo(
@@ -131,7 +139,22 @@ export function Flowchart({
       window.removeEventListener("resize", onResize);
       timers.forEach(clearTimeout);
     };
-  }, [drawArrows]);
+  }, [drawArrows, zoom]);
+
+  useEffect(() => {
+    const scrollEl = scrollRef.current;
+    if (!scrollEl) return;
+
+    const onWheel = (e: WheelEvent) => {
+      if (!e.ctrlKey && !e.metaKey) return;
+      e.preventDefault();
+      const factor = e.deltaY < 0 ? 1.08 : 0.92;
+      setZoom((z) => clampZoom(z * factor));
+    };
+
+    scrollEl.addEventListener("wheel", onWheel, { passive: false });
+    return () => scrollEl.removeEventListener("wheel", onWheel);
+  }, [scrollRef]);
 
   const renderColumn = (year: number, term: "fall" | "spring") => {
     const rows = groupCoursesByRow(year, term);
@@ -176,6 +199,34 @@ export function Flowchart({
         <span className="legend-item">
           <span className="swatch elective" /> Elective
         </span>
+        <span className="flowchart-zoom-controls">
+          <button
+            type="button"
+            className="zoom-btn"
+            aria-label="Zoom out"
+            onClick={() => setZoom((z) => clampZoom(z - ZOOM_STEP))}
+          >
+            −
+          </button>
+          <span className="zoom-label">{Math.round(zoom * 100)}%</span>
+          <button
+            type="button"
+            className="zoom-btn"
+            aria-label="Zoom in"
+            onClick={() => setZoom((z) => clampZoom(z + ZOOM_STEP))}
+          >
+            +
+          </button>
+          <button
+            type="button"
+            className="zoom-btn zoom-btn--reset"
+            aria-label="Reset zoom"
+            onClick={() => setZoom(1)}
+          >
+            Reset
+          </button>
+          <span className="zoom-hint">Pinch or Ctrl+scroll</span>
+        </span>
       </div>
 
       {addError && <p className="planner-error-banner">{addError}</p>}
@@ -184,14 +235,18 @@ export function Flowchart({
         className="flowchart-scroll auto-hide-scrollbar"
         ref={scrollRef}
       >
-        <div className="year-headers">
-          {YEARS.map((y) => (
-            <div key={y} className="year-header">
-              Year {y}
-            </div>
-          ))}
-        </div>
-        <div className="flowchart-grid" ref={containerRef}>
+        <div
+          className="flowchart-zoom-inner"
+          style={{ zoom }}
+        >
+          <div className="year-headers">
+            {YEARS.map((y) => (
+              <div key={y} className="year-header">
+                Year {y}
+              </div>
+            ))}
+          </div>
+          <div className="flowchart-grid" ref={containerRef}>
           <svg
             className="arrow-layer"
             width={svgSize.w}
@@ -244,6 +299,7 @@ export function Flowchart({
               {TERMS.map((term) => renderColumn(year, term))}
             </div>
           ))}
+          </div>
         </div>
       </div>
     </div>

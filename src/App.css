@@ -265,6 +265,57 @@ body.resizing-row .panel-resize-edge--bottom {
   -webkit-overflow-scrolling: touch;
 }
 
+.flowchart-zoom-inner {
+  width: max-content;
+  min-width: 100%;
+  transform-origin: 0 0;
+}
+
+.flowchart-zoom-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: auto;
+  flex-wrap: wrap;
+}
+
+.zoom-btn {
+  min-width: 1.65rem;
+  padding: 0.12rem 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.2;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+  color: inherit;
+  cursor: pointer;
+}
+
+.zoom-btn:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+}
+
+.zoom-btn--reset {
+  font-weight: 600;
+  font-size: 0.62rem;
+  padding: 0.12rem 0.45rem;
+}
+
+.zoom-label {
+  min-width: 2.5rem;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.68rem;
+}
+
+.zoom-hint {
+  font-size: 0.6rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
 .year-headers {
   display: grid;
   grid-template-columns: repeat(4, var(--flowchart-year-width));
