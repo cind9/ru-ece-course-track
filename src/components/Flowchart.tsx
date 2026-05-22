@@ -176,9 +176,6 @@ export function Flowchart({
         <span className="legend-item">
           <span className="swatch elective" /> Elective
         </span>
-        <span className="legend-hint">
-          Hover: orange arrows = prereqs & next courses; orange outline = next only.
-        </span>
       </div>
 
       {addError && <p className="planner-error-banner">{addError}</p>}

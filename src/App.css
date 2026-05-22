@@ -215,10 +215,6 @@ body.resizing-row .panel-resize-edge--top {
 .swatch.elective {
   background: var(--elective);
 }
-.legend-hint {
-  color: var(--muted);
-  margin-left: auto;
-}
 
 .flowchart-scroll {
   --flowchart-year-width: 15.5rem;

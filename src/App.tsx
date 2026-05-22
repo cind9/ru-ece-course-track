@@ -202,9 +202,9 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>Rutgers CE Track Course Planner</h1>
+        <h1>Rutgers CE Degree Planner</h1>
         <p className="subtitle">
-          Computer Engineering (ECE) — 4-year flowchart with semester planning
+          Computer Engineering — 4-year flowchart and semester planning
         </p>
       </header>
 
