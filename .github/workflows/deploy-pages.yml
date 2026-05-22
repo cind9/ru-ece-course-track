@@ -1,3 +1,5 @@
+# Requires: Settings → Pages → Source = GitHub Actions
+# Repo should be named rutgers-ce-degree-planner (see README).
 name: Deploy to GitHub Pages
 
 on:
