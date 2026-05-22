@@ -1,4 +1,4 @@
-# Rutgers CE Degree Planner
+# Rutgers CE Course Track
 
 Interactive 4-year **Computer Engineering** course flowchart with:
 
@@ -9,7 +9,7 @@ Interactive 4-year **Computer Engineering** course flowchart with:
 
 ## Live site
 
-**https://cind9.github.io/ru-ce-course-track/**
+**[Rutgers CE Course Track](https://cind9.github.io/ru-ce-course-track/)**
 
 ## Project location
 
