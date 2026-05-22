@@ -4,7 +4,7 @@
   </linearGradient></defs>
   <rect width="1200" height="630" fill="url(#bg)"/>
   <rect x="80" y="80" width="1040" height="470" rx="24" fill="#fff" fill-opacity="0.06"/>
-  <text x="120" y="280" fill="#ede6ff" font-family="system-ui,sans-serif" font-size="64" font-weight="700">Rutgers CE Degree Planner</text>
+  <text x="120" y="280" fill="#ede6ff" font-family="system-ui,sans-serif" font-size="64" font-weight="700">Rutgers CE Track</text>
   <text x="120" y="360" fill="#c4b5fd" font-family="system-ui,sans-serif" font-size="36">4-year Computer Engineering course flowchart</text>
   <text x="120" y="430" fill="#a78bfa" font-family="system-ui,sans-serif" font-size="28">Plan semesters · Track credits · See prerequisites</text>
 </svg>

@@ -2,6 +2,12 @@
 
 export type ElectiveKind = "computer" | "technical" | "restricted";
 
+export interface SocTopicEntry {
+  code: string;
+  topic: string;
+  seniorOnly?: boolean;
+}
+
 export interface ElectiveOption {
   id: string;
   code: string;
@@ -75,13 +81,64 @@ export const socOfferingsSnapshot = {
     "14:332:382", "14:332:393", "14:332:423", "14:332:434", "14:332:435", "14:332:448",
     "14:332:452", "14:332:456", "14:332:493",
   ],
+  fall2026: [
+    "14:332:402", "14:332:417", "14:332:421", "14:332:424", "14:332:435", "14:332:436",
+    "14:332:437", "14:332:443", "14:332:445", "14:332:446", "14:332:451", "14:332:472",
+    "14:332:479", "14:332:463", "14:332:465", "14:332:481", "14:332:493", "14:332:494",
+  ],
   topicsSpring2026: [
+    { code: "14:332:435", topic: "Biosensing and Bioelectronics" },
+    { code: "14:332:435", topic: "Introduction to Deep Learning", seniorOnly: true },
+    { code: "14:332:445", topic: "Digital Communication Systems", seniorOnly: true },
+    {
+      code: "14:332:445",
+      topic: "Recent Advances in High-Performance Computing",
+      seniorOnly: true,
+    },
     { code: "14:332:493", topic: "Embedded Systems I" },
-    { code: "14:332:493", topic: "Quantum Computing and Information System" },
-  ],
+    {
+      code: "14:332:493",
+      topic: "Quantum Computing and Information Systems",
+      seniorOnly: true,
+    },
+  ] satisfies SocTopicEntry[],
   topicsFall2025: [
-    { code: "14:332:493", topic: "Embedded Systems II: Application Develop" },
+    {
+      code: "14:332:435",
+      topic: "Computing Principles for Mobile Embedded Systems",
+      seniorOnly: true,
+    },
+    { code: "14:332:445", topic: "Reinforcement Learning for Engineers" },
+    { code: "14:332:446", topic: "Distributed Deep Learning" },
+    { code: "14:332:493", topic: "Introduction to Quantum Information Science" },
     { code: "14:332:493", topic: "Machine Learning for IoT" },
-    { code: "14:332:494", topic: "Cloud Computing" },
-  ],
+    {
+      code: "14:332:493",
+      topic: "Embedded Systems II: Application Development",
+      seniorOnly: true,
+    },
+    { code: "14:332:494", topic: "Cloud Computing", seniorOnly: true },
+    { code: "14:332:494", topic: "Semiconductors for AI" },
+  ] satisfies SocTopicEntry[],
+  topicsFall2026: [
+    {
+      code: "14:332:435",
+      topic: "Computing Principles for Mobile Embedded Systems",
+      seniorOnly: true,
+    },
+    { code: "14:332:445", topic: "Reinforcement Learning for Engineers" },
+    { code: "14:332:446", topic: "Distributed Deep Learning" },
+    {
+      code: "14:332:493",
+      topic: "Quantum Computing and Communications Algorithms",
+    },
+    { code: "14:332:493", topic: "Machine Learning for IoT" },
+    {
+      code: "14:332:493",
+      topic: "Embedded Systems II: Application Development",
+      seniorOnly: true,
+    },
+    { code: "14:332:494", topic: "Cloud Computing", seniorOnly: true },
+    { code: "14:332:494", topic: "Semiconductors for AI" },
+  ] satisfies SocTopicEntry[],
 } as const;

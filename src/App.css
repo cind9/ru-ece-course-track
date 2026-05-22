@@ -217,7 +217,7 @@ body.resizing-row .panel-resize-edge--top {
 }
 
 .flowchart-scroll {
-  --flowchart-year-width: 15.5rem;
+  --flowchart-year-width: 18.5rem;
   --flowchart-year-gap: 4.5rem;
   --flowchart-term-gap: 1.35rem;
   --flowchart-course-gap: 1.05rem;
@@ -304,7 +304,7 @@ body.resizing-row .panel-resize-edge--top {
   flex-direction: column;
   border: 1px solid var(--border);
   border-radius: 5px;
-  overflow: hidden;
+  overflow: visible;
   position: relative;
   z-index: 1;
   background: var(--surface);
@@ -315,7 +315,7 @@ body.resizing-row .panel-resize-edge--top {
 }
 
 .course-slot:not(.split) .slot-half {
-  min-height: 3.85rem;
+  min-height: auto;
 }
 
 .course-slot.split {
@@ -351,6 +351,8 @@ body.resizing-row .panel-resize-edge--top {
   line-height: 1.15;
   padding: 0.12rem 0.4rem;
   max-width: 100%;
+  white-space: normal;
+  overflow-wrap: break-word;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.55);
 }
@@ -455,6 +457,9 @@ body.resizing-row .panel-resize-edge--top {
   display: block;
   font-size: 0.78rem;
   line-height: 1.25;
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: normal;
 }
 
 .available-course-meta,
@@ -557,21 +562,21 @@ body.resizing-row .panel-resize-edge--top {
 }
 
 .slot-half {
-  flex: 1;
+  flex: 1 1 auto;
   min-width: 0;
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   text-align: left;
-  padding: 0.32rem 0.34rem;
+  padding: 0.38rem 0.42rem;
   border: none;
   cursor: pointer;
   font: inherit;
   color: inherit;
   position: relative;
-  overflow: hidden;
-  gap: 0.15rem;
+  overflow: visible;
+  gap: 0.12rem;
   box-sizing: border-box;
 }
 
@@ -584,17 +589,30 @@ body.resizing-row .panel-resize-edge--top {
 }
 
 .course-slot.split .slot-half {
-  min-height: 4rem;
-  padding: 0.32rem 0.34rem;
+  flex: 0 0 auto;
+  min-height: auto;
+  padding: 0.36rem 0.4rem;
 }
 
 .course-slot.split:has(.slot-half:nth-child(3)) .slot-half {
-  min-height: 3.35rem;
-  padding: 0.28rem 0.32rem;
+  min-height: auto;
+  padding: 0.34rem 0.38rem;
 }
 
 .course-slot.split .slot-half + .slot-half {
   border-top: 2px solid rgba(0, 0, 0, 0.14);
+}
+
+.course-slot.split .slot-half:first-child {
+  border-radius: 4px 4px 0 0;
+}
+
+.course-slot.split .slot-half:last-child {
+  border-radius: 0 0 4px 4px;
+}
+
+.course-slot:not(.split) .slot-half {
+  border-radius: 4px;
 }
 
 .slot-half.category-ece {
@@ -637,30 +655,34 @@ body.resizing-row .panel-resize-edge--top {
 
 .slot-label {
   font-weight: 700;
-  font-size: 0.6rem;
-  line-height: 1.2;
+  font-size: 0.62rem;
+  line-height: 1.25;
   width: 100%;
-  overflow-wrap: anywhere;
-  word-break: break-word;
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: normal;
+  hyphens: auto;
 }
 
 .course-slot.split .slot-label {
-  font-size: 0.58rem;
+  font-size: 0.6rem;
 }
 
 .slot-title {
-  font-size: 0.48rem;
+  font-size: 0.52rem;
   color: var(--muted);
-  line-height: 1.2;
+  line-height: 1.25;
   display: block;
   width: 100%;
-  overflow-wrap: anywhere;
-  word-break: break-word;
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: normal;
+  hyphens: auto;
 }
 
 .course-slot.split .slot-title {
-  font-size: 0.46rem;
-  line-height: 1.15;
+  font-size: 0.5rem;
+  line-height: 1.2;
 }
 
 .slot-credits {
@@ -669,18 +691,6 @@ body.resizing-row .panel-resize-edge--top {
   color: #b91c1c;
   font-weight: 600;
   line-height: 1.1;
-}
-
-.slot-residency-credits {
-  position: relative;
-  z-index: 3;
-  font-size: 0.42rem;
-  font-weight: 600;
-  color: #1e40af;
-  background: var(--ece);
-  padding: 0.06rem 0.28rem;
-  border-radius: 3px;
-  line-height: 1.15;
 }
 
 .arrow-layer {
@@ -979,6 +989,11 @@ body.resizing-row .panel-resize-edge--top {
 
 .elective-list.muted {
   opacity: 0.75;
+}
+
+.elective-senior-tag {
+  color: #9a3412;
+  font-weight: 600;
 }
 
 .elective-note,

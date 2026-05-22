@@ -1,9 +1,23 @@
+import { formatTopicTitle, isSeniorOnlySection } from "./topicTitles";
+
+export interface SocSection {
+  subtitle?: string;
+  notes?: string;
+  sectionEligibility?: string;
+}
+
 export interface SocCourse {
   courseString: string;
   courseNumber: string;
   title: string;
   credits: number;
-  sections?: { subtitle?: string; notes?: string }[];
+  sections?: SocSection[];
+}
+
+export interface SocTopicSection {
+  code: string;
+  topic: string;
+  seniorOnly: boolean;
 }
 
 export async function fetchEce332Offerings(
@@ -23,11 +37,21 @@ export async function fetchEce332Offerings(
   return data.filter((c) => c.courseString?.startsWith("14:332:"));
 }
 
-export function getSectionTopics(course: SocCourse): string[] {
-  const topics: string[] = [];
+export function getTopicSections(course: SocCourse): SocTopicSection[] {
+  const topics: SocTopicSection[] = [];
   for (const s of course.sections ?? []) {
-    const t = (s.subtitle || s.notes || "").trim();
-    if (t) topics.push(t);
+    const raw = (s.subtitle || s.notes || "").trim();
+    if (!raw) continue;
+    topics.push({
+      code: course.courseString,
+      topic: formatTopicTitle(raw),
+      seniorOnly: isSeniorOnlySection(s.sectionEligibility),
+    });
   }
   return topics;
+}
+
+/** @deprecated Use getTopicSections */
+export function getSectionTopics(course: SocCourse): string[] {
+  return getTopicSections(course).map((t) => t.topic);
 }

@@ -165,11 +165,6 @@ export function CourseSlot({
               )}
               <span className="slot-title">{course.title}</span>
               <span className="slot-credits">{course.credits} cr</span>
-              {course.residencyCredits > 0 && (
-                <span className="slot-residency-credits">
-                  {course.residencyCredits} ECE res.
-                </span>
-              )}
             </button>
           );
         })}

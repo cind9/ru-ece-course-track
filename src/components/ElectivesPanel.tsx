@@ -5,24 +5,27 @@ import {
   socOfferingsSnapshot,
   technicalElectives,
   type ElectiveOption,
+  type SocTopicEntry,
 } from "../data/electives";
 import {
   fetchEce332Offerings,
-  getSectionTopics,
+  getTopicSections,
   type SocCourse,
 } from "../utils/fetchSoc";
 
-type SocTerm = "fall2025" | "spring2026" | "live";
+type SocTerm = "fall2025" | "spring2026" | "fall2026" | "live";
+
+const SOC_SNAPSHOT_CODES: Record<Exclude<SocTerm, "live">, readonly string[]> = {
+  fall2025: socOfferingsSnapshot.fall2025,
+  spring2026: socOfferingsSnapshot.spring2026,
+  fall2026: socOfferingsSnapshot.fall2026,
+};
 
 function matchesSoc(code: string, term: SocTerm, live?: SocCourse[]): boolean {
-  if (term === "live" && live) {
-    return live.some((c) => c.courseString === code);
+  if (term === "live") {
+    return live?.some((c) => c.courseString === code) ?? false;
   }
-  const list: readonly string[] =
-    term === "fall2025"
-      ? socOfferingsSnapshot.fall2025
-      : socOfferingsSnapshot.spring2026;
-  return list.includes(code);
+  return SOC_SNAPSHOT_CODES[term].includes(code);
 }
 
 function ElectiveGroup({
@@ -83,7 +86,7 @@ function ElectiveGroup({
 }
 
 export function ElectivesPanel() {
-  const [socTerm, setSocTerm] = useState<SocTerm>("spring2026");
+  const [socTerm, setSocTerm] = useState<SocTerm>("fall2026");
   const [liveCourses, setLiveCourses] = useState<SocCourse[] | null>(null);
   const [liveLoading, setLiveLoading] = useState(false);
   const [liveError, setLiveError] = useState<string | null>(null);
@@ -106,21 +109,18 @@ export function ElectivesPanel() {
       .finally(() => setLiveLoading(false));
   }, [socTerm]);
 
-  const topics =
+  const topics: SocTopicEntry[] =
     socTerm === "fall2025"
-      ? socOfferingsSnapshot.topicsFall2025
-      : socTerm === "spring2026"
-        ? socOfferingsSnapshot.topicsSpring2026
-        : (liveCourses ?? [])
+      ? [...socOfferingsSnapshot.topicsFall2025]
+      : socTerm === "fall2026"
+        ? [...socOfferingsSnapshot.topicsFall2026]
+        : socTerm === "spring2026"
+          ? [...socOfferingsSnapshot.topicsSpring2026]
+          : (liveCourses ?? [])
             .filter((c) =>
-              ["493", "494", "435", "445", "446"].includes(c.courseNumber),
+              ["435", "445", "446", "493", "494"].includes(c.courseNumber),
             )
-            .flatMap((c) =>
-              getSectionTopics(c).map((topic) => ({
-                code: c.courseString,
-                topic,
-              })),
-            );
+            .flatMap((c) => getTopicSections(c));
 
   return (
     <section className="electives-panel">
@@ -154,6 +154,7 @@ export function ElectivesPanel() {
             value={socTerm}
             onChange={(e) => setSocTerm(e.target.value as SocTerm)}
           >
+            <option value="fall2026">Fall 2026 (snapshot)</option>
             <option value="spring2026">Spring 2026 (snapshot)</option>
             <option value="fall2025">Fall 2025 (snapshot)</option>
             <option value="live">Live — Spring 2026</option>
@@ -183,12 +184,17 @@ export function ElectivesPanel() {
 
         {topics.length > 0 && (
           <div className="elective-group">
-            <h4>Topics sections (493/494)</h4>
+            <h4>Topics sections (435/445/446/493/494)</h4>
             <ul className="elective-list">
               {topics.map((t, i) => (
                 <li key={`${t.code}-${i}`}>
                   <strong className="elective-course-title">{t.topic}</strong>
-                  <span className="elective-course-meta">{t.code}</span>
+                  <span className="elective-course-meta">
+                    {t.code}
+                    {t.seniorOnly && (
+                      <span className="elective-senior-tag"> · Senior only</span>
+                    )}
+                  </span>
                 </li>
               ))}
             </ul>
