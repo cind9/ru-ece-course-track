@@ -9,6 +9,7 @@ interface ResizablePanelProps {
   maxSize: number;
   onSizeChange: (size: number) => void;
   className?: string;
+  resizeLabel?: string;
   children: ReactNode;
 }
 
@@ -23,6 +24,7 @@ export function ResizablePanel({
   maxSize,
   onSizeChange,
   className = "",
+  resizeLabel,
   children,
 }: ResizablePanelProps) {
   const dragRef = useRef({ pointer: 0, size: 0 });
@@ -76,9 +78,10 @@ export function ResizablePanel({
         aria-valuemin={minSize}
         aria-valuemax={maxSize}
         aria-label={
-          edge === "left"
-            ? "Resize semester planner — drag anywhere along the left edge"
-            : "Resize electives panel — drag anywhere along the top edge"
+          resizeLabel ??
+          (edge === "left"
+            ? "Resize panel — drag along the left edge"
+            : "Resize panel — drag along the top edge")
         }
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
