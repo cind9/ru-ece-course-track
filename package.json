@@ -6,7 +6,6 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "build:pages": "tsc -b && vite build --base=/rutgers-ce-degree-planner/",
     "lint": "eslint .",
     "preview": "vite preview"
   },

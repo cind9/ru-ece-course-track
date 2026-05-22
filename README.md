@@ -1,4 +1,4 @@
-# Rutgers CE Track Course Planner
+# Rutgers CE Track
 
 Interactive 4-year **Computer Engineering** course flowchart with:
 
