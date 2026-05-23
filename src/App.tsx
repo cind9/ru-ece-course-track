@@ -3,9 +3,7 @@ import { Flowchart } from "./components/Flowchart";
 import type { PendingOverride } from "./components/CourseSlot";
 import { ElectivesPanel } from "./components/ElectivesPanel";
 import { PlannerPanel } from "./components/PlannerPanel";
-import { ResizeDivider } from "./components/ResizeDivider";
 import { ResizablePanel } from "./components/ResizablePanel";
-import { useMediaQuery } from "./hooks/useMediaQuery";
 import type { PlannerSemester, Term } from "./types";
 import {
   allChosenIds,
@@ -16,6 +14,11 @@ import {
   isSlotOverridden,
   plannedSlotIdSet,
 } from "./utils/planner";
+import {
+  defaultPersistedPlan,
+  loadPersistedPlan,
+  savePersistedPlan,
+} from "./utils/planStorage";
 import "./App.css";
 
 function newSemester(name: string, term: Term = "fall"): PlannerSemester {
@@ -28,27 +31,39 @@ function newSemester(name: string, term: Term = "fall"): PlannerSemester {
 }
 
 function App() {
-  const [semesters, setSemesters] = useState<PlannerSemester[]>([
-    newSemester("Fall 2025", "fall"),
-    newSemester("Spring 2026", "spring"),
-    newSemester("Fall 2026", "fall"),
-  ]);
-  const [activeSemesterId, setActiveSemesterId] = useState(semesters[0].id);
+  const initialPlan = useMemo(
+    () => loadPersistedPlan() ?? defaultPersistedPlan(),
+    [],
+  );
+  const [semesters, setSemesters] = useState<PlannerSemester[]>(
+    initialPlan.semesters,
+  );
+  const [activeSemesterId, setActiveSemesterId] = useState(
+    initialPlan.activeSemesterId,
+  );
   const [hoveredId, setHoveredId] = useState<string | null>(null);
-  const [availableTerm, setAvailableTerm] = useState<Term>("fall");
+  const [availableTerm, setAvailableTerm] = useState<Term>(
+    initialPlan.availableTerm,
+  );
   const [pendingOverride, setPendingOverride] =
     useState<PendingOverride | null>(null);
   const [addError, setAddError] = useState<string | null>(null);
-  const [plannerWidth, setPlannerWidth] = useState(300);
-  const [plannerHeight, setPlannerHeight] = useState(280);
-  const [electivesHeight, setElectivesHeight] = useState(200);
-  const isNarrowLayout = useMediaQuery("(max-width: 1024px)");
+  const [plannerWidth, setPlannerWidth] = useState(initialPlan.plannerWidth);
+  const [electivesHeight, setElectivesHeight] = useState(
+    initialPlan.electivesHeight,
+  );
   const [viewportHeight, setViewportHeight] = useState(
     () => (typeof window !== "undefined" ? window.innerHeight : 800),
   );
+  const [viewportWidth, setViewportWidth] = useState(
+    () => (typeof window !== "undefined" ? window.innerWidth : 1200),
+  );
 
   useEffect(() => {
-    const onResize = () => setViewportHeight(window.innerHeight);
+    const onResize = () => {
+      setViewportHeight(window.innerHeight);
+      setViewportWidth(window.innerWidth);
+    };
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
@@ -57,24 +72,44 @@ function App() {
     () => Math.round(viewportHeight * 0.72),
     [viewportHeight],
   );
-  const plannerMaxHeight = useMemo(
-    () =>
-      Math.round(viewportHeight * (isNarrowLayout ? 0.45 : 0.62)),
-    [viewportHeight, isNarrowLayout],
-  );
-  const electivesMaxHeightNarrow = useMemo(
-    () => Math.round(viewportHeight * 0.4),
-    [viewportHeight],
-  );
+  const plannerMaxWidth = useMemo(() => {
+    const cap = Math.round(viewportWidth * 0.48);
+    return Math.min(560, Math.max(220, cap));
+  }, [viewportWidth]);
 
   useEffect(() => {
-    const cap = isNarrowLayout ? electivesMaxHeightNarrow : electivesMaxHeight;
-    setElectivesHeight((h) => Math.min(h, cap));
-  }, [electivesMaxHeight, electivesMaxHeightNarrow, isNarrowLayout]);
+    setElectivesHeight((h) => Math.min(h, electivesMaxHeight));
+  }, [electivesMaxHeight]);
 
   useEffect(() => {
-    setPlannerHeight((h) => Math.min(h, plannerMaxHeight));
-  }, [plannerMaxHeight]);
+    setPlannerWidth((w) => Math.min(w, plannerMaxWidth));
+  }, [plannerMaxWidth]);
+
+  useEffect(() => {
+    const save = () => {
+      savePersistedPlan({
+        version: 1,
+        semesters,
+        activeSemesterId,
+        availableTerm,
+        plannerWidth,
+        electivesHeight,
+      });
+    };
+
+    const timer = window.setTimeout(save, 250);
+    window.addEventListener("beforeunload", save);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("beforeunload", save);
+    };
+  }, [
+    semesters,
+    activeSemesterId,
+    availableTerm,
+    plannerWidth,
+    electivesHeight,
+  ]);
 
   const plannedSlotIds = useMemo(
     () => plannedSlotIdSet(semesters),
@@ -209,7 +244,7 @@ function App() {
     setSemesters((prev) => {
       const next = prev.filter((s) => s.id !== id);
       const final =
-        next.length > 0 ? next : [newSemester("Fall 2025", "fall")];
+        next.length > 0 ? next : defaultPersistedPlan().semesters;
       if (activeSemesterId === id) {
         setActiveSemesterId(final[0].id);
       }
@@ -259,80 +294,37 @@ function App() {
       <header className="app-header">
         <h1>Rutgers CE Track</h1>
         <p className="subtitle">
-          Computer Engineering (ECE) — 4-year flowchart with semester planning
+          Computer Engineering (ECE) — 4-year flowchart with semester planning.
+          Your plan saves automatically on this device.
         </p>
       </header>
 
-      <main
-        className={`app-main${isNarrowLayout ? " app-main--stacked" : ""}`}
-      >
-        {isNarrowLayout ? (
-          <>
-            <div className="stacked-pane stacked-pane--flowchart">{flowchart}</div>
-            <ResizeDivider
-              ariaLabel="Resize semester planner height"
-              onResize={(delta) =>
-                setPlannerHeight((h) =>
-                  Math.min(
-                    plannerMaxHeight,
-                    Math.max(160, h + delta),
-                  ),
-                )
-              }
-            />
-            <div
-              className="stacked-pane stacked-pane--planner planner-panel-wrap"
-              style={{ height: plannerHeight }}
-            >
-              {plannerPanel}
-            </div>
-            <ResizeDivider
-              ariaLabel="Resize CE electives height"
-              onResize={(delta) =>
-                setElectivesHeight((h) =>
-                  Math.min(
-                    electivesMaxHeightNarrow,
-                    Math.max(100, h + delta),
-                  ),
-                )
-              }
-            />
-            <div
-              className="stacked-pane stacked-pane--electives electives-panel-wrap"
-              style={{ height: electivesHeight }}
-            >
-              <ElectivesPanel />
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="app-main-center">
-              {flowchart}
-              <ResizablePanel
-                edge="left"
-                className="planner-panel-wrap"
-                size={plannerWidth}
-                minSize={240}
-                maxSize={560}
-                onSizeChange={setPlannerWidth}
-                resizeLabel="Resize semester planner — drag along the left edge"
-              >
-                {plannerPanel}
-              </ResizablePanel>
-            </div>
-            <ResizablePanel
-              edge="top"
-              className="electives-panel-wrap"
-              size={electivesHeight}
-              minSize={100}
-              maxSize={electivesMaxHeight}
-              onSizeChange={setElectivesHeight}
-              resizeLabel="Resize CE electives — drag along the top edge"
-            >
-              <ElectivesPanel />
-            </ResizablePanel>
-          </>
-        )}
+      <main className="app-main">
+        <div className="app-main-center">
+          {flowchart}
+          <ResizablePanel
+            edge="left"
+            className="planner-panel-wrap"
+            size={plannerWidth}
+            minSize={220}
+            maxSize={plannerMaxWidth}
+            onSizeChange={setPlannerWidth}
+            resizeLabel="Resize semester planner — drag the left edge"
+          >
+            {plannerPanel}
+          </ResizablePanel>
+        </div>
+        <ResizablePanel
+          edge="top"
+          className="electives-panel-wrap"
+          size={electivesHeight}
+          minSize={100}
+          maxSize={electivesMaxHeight}
+          onSizeChange={setElectivesHeight}
+          resizeLabel="Resize CE electives — drag the top edge"
+        >
+          <ElectivesPanel />
+        </ResizablePanel>
       </main>
     </div>
   );

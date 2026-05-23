@@ -44,15 +44,17 @@ function getSlotAnchor(
   slotEl: HTMLElement,
   container: HTMLElement,
   side: "left" | "right",
+  scale: number,
 ): { x: number; y: number } {
   const er = slotEl.getBoundingClientRect();
   const cr = container.getBoundingClientRect();
+  const z = scale > 0 ? scale : 1;
   return {
     x:
       side === "right"
-        ? er.right - cr.left - 1
-        : er.left - cr.left + 1,
-    y: er.top + er.height / 2 - cr.top,
+        ? (er.right - cr.left) / z - 1
+        : (er.left - cr.left) / z + 1,
+    y: (er.top + er.height / 2 - cr.top) / z,
   };
 }
 
@@ -77,9 +79,11 @@ export function Flowchart({
   onCancelOverride,
 }: FlowchartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const zoomContentRef = useRef<HTMLDivElement>(null);
   const scrollRef = useAutoHideScrollbar<HTMLDivElement>();
   const [edges, setEdges] = useState<DrawnEdge[]>([]);
   const [svgSize, setSvgSize] = useState({ w: 0, h: 0 });
+  const [contentSize, setContentSize] = useState({ w: 0, h: 0 });
   const [zoom, setZoom] = useState(1);
 
   const highlightedEdgeKeys = getHighlightedEdgeKeys(hoveredId);
@@ -106,8 +110,8 @@ export function Flowchart({
       ) as HTMLElement | null;
       if (!fromEl || !toEl) continue;
 
-      const start = getSlotAnchor(fromEl, container, "right");
-      const end = getSlotAnchor(toEl, container, "left");
+      const start = getSlotAnchor(fromEl, container, "right", zoom);
+      const end = getSlotAnchor(toEl, container, "left", zoom);
       if (end.x <= start.x) continue;
 
       drawn.push({
@@ -118,6 +122,23 @@ export function Flowchart({
       });
     }
     setEdges(drawn);
+  }, [zoom]);
+
+  useEffect(() => {
+    const content = zoomContentRef.current;
+    if (!content) return;
+
+    const measure = () => {
+      setContentSize({
+        w: content.scrollWidth,
+        h: content.scrollHeight,
+      });
+    };
+
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(content);
+    return () => ro.disconnect();
   }, []);
 
   useEffect(() => {
@@ -140,6 +161,13 @@ export function Flowchart({
       timers.forEach(clearTimeout);
     };
   }, [drawArrows, zoom]);
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() => {
+      requestAnimationFrame(drawArrows);
+    });
+    return () => cancelAnimationFrame(id);
+  }, [zoom, drawArrows]);
 
   useEffect(() => {
     const scrollEl = scrollRef.current;
@@ -236,9 +264,21 @@ export function Flowchart({
         ref={scrollRef}
       >
         <div
-          className="flowchart-zoom-inner"
-          style={{ zoom }}
+          className="flowchart-zoom-slot"
+          style={
+            contentSize.w > 0
+              ? {
+                  width: Math.round(contentSize.w * zoom),
+                  height: Math.round(contentSize.h * zoom),
+                }
+              : undefined
+          }
         >
+          <div
+            ref={zoomContentRef}
+            className="flowchart-zoom-inner"
+            style={{ transform: `scale(${zoom})` }}
+          >
           <div className="year-headers">
             {YEARS.map((y) => (
               <div key={y} className="year-header">
@@ -299,6 +339,7 @@ export function Flowchart({
               {TERMS.map((term) => renderColumn(year, term))}
             </div>
           ))}
+          </div>
           </div>
         </div>
       </div>
