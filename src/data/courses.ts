@@ -228,8 +228,8 @@ export const courses: Course[] = [
     term: "spring",
     row: 1,
     prereqs: ["math-251"],
-    offered: "fall",
-    note: "Fall only",
+    offered: "spring",
+    note: "Spring only",
   },
   {
     id: "ece-206",
