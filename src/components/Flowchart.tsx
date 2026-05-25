@@ -24,6 +24,7 @@ interface FlowchartProps {
   hoveredId: string | null;
   plannedSlotIds: Set<string>;
   activePlannedSlotIds: Set<string>;
+  activeChosenIds: Set<string>;
   overriddenSlotIds: Set<string>;
   completedIds: Set<string>;
   pendingOverride: PendingOverride | null;
@@ -63,6 +64,7 @@ export function Flowchart({
   hoveredId,
   plannedSlotIds,
   activePlannedSlotIds,
+  activeChosenIds,
   overriddenSlotIds,
   completedIds,
   pendingOverride,
@@ -204,6 +206,7 @@ export function Flowchart({
               unlockHighlightIds={unlockCourseIds}
               slotPlanned={plannedSlotIds.has(primary.id)}
               removableFromActive={activePlannedSlotIds.has(primary.id)}
+              activeChosenIds={activeChosenIds}
               slotOverridden={overriddenSlotIds.has(primary.id)}
               completedIds={completedIds}
               pendingOverride={pendingOverride}

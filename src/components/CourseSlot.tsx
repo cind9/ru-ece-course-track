@@ -16,6 +16,8 @@ interface CourseSlotProps {
   slotPlanned: boolean;
   /** Planned in the active semester — click removes; otherwise locked. */
   removableFromActive: boolean;
+  /** Exact chosenIds in the active semester (for per-half highlight). */
+  activeChosenIds: Set<string>;
   slotOverridden: boolean;
   completedIds: Set<string>;
   pendingOverride: PendingOverride | null;
@@ -32,6 +34,7 @@ export function CourseSlot({
   unlockHighlightIds,
   slotPlanned,
   removableFromActive,
+  activeChosenIds,
   slotOverridden,
   completedIds,
   pendingOverride,
@@ -127,7 +130,7 @@ export function CourseSlot({
     <>
       <div
         ref={slotRef}
-        className={`course-slot ${slotPlanned ? "planned" : ""} ${removableFromActive ? "active-sem" : ""} ${slotOverridden ? "overridden" : ""} ${halves.length > 1 ? "split" : ""} ${slotHasHover ? "slot-has-hover" : ""} ${showOverridePopup ? "has-prereq-popup" : ""}`}
+        className={`course-slot ${slotPlanned ? "planned" : ""} ${slotOverridden ? "overridden" : ""} ${halves.length > 1 ? "split" : ""} ${slotHasHover ? "slot-has-hover" : ""} ${showOverridePopup ? "has-prereq-popup" : ""}`}
         data-slot-id={slotId}
         onMouseLeave={() => onHover(null)}
       >
@@ -144,7 +147,7 @@ export function CourseSlot({
               key={course.id}
               type="button"
               disabled={plannedLocked}
-              className={`slot-half category-${course.category} ${notReady ? "not-ready" : ""} ${isHovered ? "hovered" : ""} ${isSiblingDim ? "sibling-dim" : ""} ${unlockHighlightIds.has(course.id) ? "unlock-highlight" : ""} ${plannedLocked ? "planned-locked" : ""}`}
+              className={`slot-half category-${course.category} ${notReady ? "not-ready" : ""} ${isHovered ? "hovered" : ""} ${isSiblingDim ? "sibling-dim" : ""} ${unlockHighlightIds.has(course.id) ? "unlock-highlight" : ""} ${plannedLocked ? "planned-locked" : ""} ${activeChosenIds.has(course.id) ? "active-sem" : ""}`}
               onMouseEnter={() => !plannedLocked && onHover(course.id)}
               onClick={() => {
                 if (plannedLocked) return;

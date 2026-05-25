@@ -457,20 +457,21 @@ body.resizing-row .panel-resize-edge--top::after {
   opacity: 0.62;
 }
 
-/* Courses in the currently-selected semester — full colour + accent ring */
-.course-slot.planned.active-sem {
-  filter: none;
-  opacity: 1;
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 18%, transparent);
-  border-radius: 6px;
-  z-index: 2;
-}
-
 .slot-half.planned-locked:disabled {
   cursor: not-allowed;
   pointer-events: none;
+}
+
+/* Only the chosen half in the active semester — full colour + accent ring */
+.slot-half.active-sem {
+  filter: none !important;
+  opacity: 1 !important;
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+  box-shadow: inset 0 0 0 2px var(--accent),
+    0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent);
+  z-index: 2;
+  position: relative;
 }
 
 .course-slot.planned.overridden {
@@ -479,10 +480,9 @@ body.resizing-row .panel-resize-edge--top::after {
   outline: 2px dashed #94a3b8;
 }
 
-.course-slot.planned.active-sem.overridden {
-  filter: none;
-  opacity: 1;
+.slot-half.active-sem.planned-locked {
   outline: 2px dashed var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
 }
 
 .course-slot {

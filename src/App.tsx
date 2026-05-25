@@ -124,6 +124,10 @@ function AppContent({
     const active = semesters.find((s) => s.id === activeSemesterId);
     return new Set(active?.slots.map((s) => s.slotId) ?? []);
   }, [semesters, activeSemesterId]);
+  const activeChosenIds = useMemo(() => {
+    const active = semesters.find((s) => s.id === activeSemesterId);
+    return new Set(active?.slots.map((s) => s.chosenId) ?? []);
+  }, [semesters, activeSemesterId]);
   const completedIds = useMemo(
     () => planner.completedIdsFromSlots(semesters),
     [planner, semesters],
@@ -296,6 +300,7 @@ function AppContent({
             hoveredId={hoveredId}
             plannedSlotIds={plannedSlotIds}
             activePlannedSlotIds={activePlannedSlotIds}
+            activeChosenIds={activeChosenIds}
             overriddenSlotIds={overriddenSlotIds}
             completedIds={completedIds}
             pendingOverride={pendingOverride}
