@@ -2,7 +2,7 @@
 
 Interactive 4-year **Computer Engineering** and **Electrical Engineering** flowcharts with semester planning, prerequisites, SOC electives, and saved plans per track.
 
-**Live site:** [https://cind9.github.io/ru-ce-course-track/](https://cind9.github.io/ru-ce-course-track/)
+**Live site:** [https://cind9.github.io/ru-ece-course-track/](https://cind9.github.io/ru-ece-course-track/)
 
 Use the **CE** / **EE** tabs in the header to switch degrees. Each track has its own flowchart, electives panel, and saved semester plan (stored in your browser).
 

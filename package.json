@@ -1,5 +1,5 @@
 {
-  "name": "ru-ce-course-track",
+  "name": "ru-ece-course-track",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "build:pages": "tsc -b && vite build --base=/ru-ce-course-track/"
+    "build:pages": "tsc -b && vite build --base=/ru-ece-course-track/"
   },
   "dependencies": {
     "react": "^19.2.6",
