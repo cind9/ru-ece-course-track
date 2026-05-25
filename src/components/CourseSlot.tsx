@@ -127,7 +127,7 @@ export function CourseSlot({
     <>
       <div
         ref={slotRef}
-        className={`course-slot ${slotPlanned ? "planned" : ""} ${slotOverridden ? "overridden" : ""} ${halves.length > 1 ? "split" : ""} ${slotHasHover ? "slot-has-hover" : ""} ${showOverridePopup ? "has-prereq-popup" : ""}`}
+        className={`course-slot ${slotPlanned ? "planned" : ""} ${removableFromActive ? "active-sem" : ""} ${slotOverridden ? "overridden" : ""} ${halves.length > 1 ? "split" : ""} ${slotHasHover ? "slot-has-hover" : ""} ${showOverridePopup ? "has-prereq-popup" : ""}`}
         data-slot-id={slotId}
         onMouseLeave={() => onHover(null)}
       >

@@ -457,6 +457,17 @@ body.resizing-row .panel-resize-edge--top::after {
   opacity: 0.62;
 }
 
+/* Courses in the currently-selected semester — full colour + accent ring */
+.course-slot.planned.active-sem {
+  filter: none;
+  opacity: 1;
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 18%, transparent);
+  border-radius: 6px;
+  z-index: 2;
+}
+
 .slot-half.planned-locked:disabled {
   cursor: not-allowed;
   pointer-events: none;
@@ -466,6 +477,12 @@ body.resizing-row .panel-resize-edge--top::after {
   filter: grayscale(0.85);
   opacity: 0.55;
   outline: 2px dashed #94a3b8;
+}
+
+.course-slot.planned.active-sem.overridden {
+  filter: none;
+  opacity: 1;
+  outline: 2px dashed var(--accent);
 }
 
 .course-slot {
