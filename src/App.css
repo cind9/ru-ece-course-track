@@ -898,6 +898,39 @@ body.resizing-row .panel-resize-edge--top::after {
   font-size: 1.1rem;
 }
 
+.planner-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.btn-icon-undo {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  border-radius: 6px;
+  width: 2rem;
+  height: 2rem;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.btn-icon-undo:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.btn-icon-undo:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
 .planner-help {
   margin: 0;
   font-size: 0.8rem;

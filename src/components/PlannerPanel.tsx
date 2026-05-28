@@ -16,6 +16,8 @@ interface PlannerPanelProps {
   onAvailableTermChange: (term: Term) => void;
   allChosenIds: string[];
   plannedSlotIds: Set<string>;
+  onUndo: () => void;
+  canUndo: boolean;
 }
 
 export function PlannerPanel({
@@ -31,6 +33,8 @@ export function PlannerPanel({
   onAvailableTermChange,
   allChosenIds,
   plannedSlotIds,
+  onUndo,
+  canUndo,
 }: PlannerPanelProps) {
   const { planner } = useTrackContext();
   const { courseMap } = useTrackContext().track.catalog;
@@ -161,9 +165,21 @@ export function PlannerPanel({
         <div>
           <h2>Semester planner</h2>
         </div>
-        <button type="button" className="btn-primary" onClick={onAddSemester}>
-          + Add semester
-        </button>
+        <div className="planner-header-actions">
+          <button
+            type="button"
+            className="btn-icon-undo"
+            onClick={onUndo}
+            disabled={!canUndo}
+            title="Undo last change (Ctrl/Cmd+Z)"
+            aria-label="Undo"
+          >
+            ↩
+          </button>
+          <button type="button" className="btn-primary" onClick={onAddSemester}>
+            + Add semester
+          </button>
+        </div>
       </header>
 
       <p className="planner-help">

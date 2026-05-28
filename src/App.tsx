@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useUndoable } from "./hooks/useUndoable";
 import { Flowchart } from "./components/Flowchart";
 import type { PendingOverride } from "./components/CourseSlot";
 import { ElectivesPanel } from "./components/ElectivesPanel";
@@ -38,7 +39,7 @@ function AppContent({
   initialPlan: PersistedPlan;
 }) {
   const { track, planner } = useTrackContext();
-  const [semesters, setSemesters] = useState<PlannerSemester[]>(
+  const [semesters, setSemesters, undoSemesters, canUndo] = useUndoable<PlannerSemester[]>(
     initialPlan.semesters,
   );
   const [activeSemesterId, setActiveSemesterId] = useState(
@@ -70,6 +71,21 @@ function AppContent({
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const isMod = e.metaKey || e.ctrlKey;
+      if (isMod && e.key === "z" && !e.shiftKey) {
+        // Don't intercept when the user is typing in an input/textarea
+        const tag = (e.target as HTMLElement).tagName;
+        if (tag === "INPUT" || tag === "TEXTAREA") return;
+        e.preventDefault();
+        undoSemesters();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [undoSemesters]);
 
   const electivesMaxHeight = useMemo(
     () => Math.round(viewportHeight * 0.72),
@@ -336,6 +352,8 @@ function AppContent({
               onAvailableTermChange={setAvailableTerm}
               allChosenIds={chosenIdsList}
               plannedSlotIds={plannedSlotIds}
+              onUndo={undoSemesters}
+              canUndo={canUndo}
             />
           </ResizablePanel>
         </div>
