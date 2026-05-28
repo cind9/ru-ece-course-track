@@ -39,9 +39,8 @@ function AppContent({
   initialPlan: PersistedPlan;
 }) {
   const { track, planner } = useTrackContext();
-  const [semesters, setSemesters, undoSemesters, canUndo] = useUndoable<PlannerSemester[]>(
-    initialPlan.semesters,
-  );
+  const [semesters, setSemesters, undoSemesters, redoSemesters, canUndo, canRedo] =
+    useUndoable<PlannerSemester[]>(initialPlan.semesters);
   const [activeSemesterId, setActiveSemesterId] = useState(
     initialPlan.activeSemesterId,
   );
@@ -75,17 +74,23 @@ function AppContent({
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const isMod = e.metaKey || e.ctrlKey;
-      if (isMod && e.key === "z" && !e.shiftKey) {
-        // Don't intercept when the user is typing in an input/textarea
-        const tag = (e.target as HTMLElement).tagName;
-        if (tag === "INPUT" || tag === "TEXTAREA") return;
+      if (!isMod) return;
+      const tag = (e.target as HTMLElement).tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA") return;
+      if (e.key === "z" && !e.shiftKey) {
         e.preventDefault();
         undoSemesters();
+      } else if (e.key === "z" && e.shiftKey) {
+        e.preventDefault();
+        redoSemesters();
+      } else if (e.key === "y") {
+        e.preventDefault();
+        redoSemesters();
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [undoSemesters]);
+  }, [undoSemesters, redoSemesters]);
 
   const electivesMaxHeight = useMemo(
     () => Math.round(viewportHeight * 0.72),
@@ -354,6 +359,8 @@ function AppContent({
               plannedSlotIds={plannedSlotIds}
               onUndo={undoSemesters}
               canUndo={canUndo}
+              onRedo={redoSemesters}
+              canRedo={canRedo}
             />
           </ResizablePanel>
         </div>

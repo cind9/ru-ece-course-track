@@ -18,6 +18,8 @@ interface PlannerPanelProps {
   plannedSlotIds: Set<string>;
   onUndo: () => void;
   canUndo: boolean;
+  onRedo: () => void;
+  canRedo: boolean;
 }
 
 export function PlannerPanel({
@@ -35,6 +37,8 @@ export function PlannerPanel({
   plannedSlotIds,
   onUndo,
   canUndo,
+  onRedo,
+  canRedo,
 }: PlannerPanelProps) {
   const { planner } = useTrackContext();
   const { courseMap } = useTrackContext().track.catalog;
@@ -171,8 +175,19 @@ export function PlannerPanel({
             className="btn-icon-undo"
             onClick={onUndo}
             disabled={!canUndo}
-            title="Undo last change (Ctrl/Cmd+Z)"
+            title="Undo (Ctrl/Cmd+Z)"
             aria-label="Undo"
+          >
+            ↩
+          </button>
+          <button
+            type="button"
+            className="btn-icon-undo"
+            onClick={onRedo}
+            disabled={!canRedo}
+            title="Redo (Ctrl/Cmd+Shift+Z)"
+            aria-label="Redo"
+            style={{ transform: "scaleX(-1)" }}
           >
             ↩
           </button>
