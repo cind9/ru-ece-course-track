@@ -62,9 +62,27 @@ export function ScenarioTabs({
                   e.preventDefault();
                   setEditingId(sc.id);
                 }}
-                title="Click to switch · double-click to rename"
+                title={
+                  isActive
+                    ? "Double-click to rename"
+                    : "Click to switch · double-click to rename"
+                }
               >
                 {sc.name}
+              </button>
+            )}
+            {!isEditing && (
+              <button
+                type="button"
+                className="scenario-tab-edit"
+                aria-label={`Rename ${sc.name}`}
+                title="Rename plan"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setEditingId(sc.id);
+                }}
+              >
+                ✎
               </button>
             )}
             {scenarios.length > 1 && (
