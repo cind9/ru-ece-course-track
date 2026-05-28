@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useAutoHideScrollbar } from "../hooks/useAutoHideScrollbar";
 import { useTrackContext } from "../context/TrackContext";
-import type { PlannerSemester, Term } from "../types";
+import type { PlannerSemester, PlanScenario, Term } from "../types";
 
 interface PlannerPanelProps {
   semesters: PlannerSemester[];
@@ -20,6 +20,9 @@ interface PlannerPanelProps {
   canUndo: boolean;
   onRedo: () => void;
   canRedo: boolean;
+  otherScenarios: PlanScenario[];
+  onCopySemesterToScenario: (semesterId: string, targetScenarioId: string) => void;
+  onMoveSemesterToScenario: (semesterId: string, targetScenarioId: string) => void;
 }
 
 export function PlannerPanel({
@@ -39,7 +42,11 @@ export function PlannerPanel({
   canUndo,
   onRedo,
   canRedo,
+  otherScenarios,
+  onCopySemesterToScenario,
+  onMoveSemesterToScenario,
 }: PlannerPanelProps) {
+  const [openMenuSemId, setOpenMenuSemId] = useState<string | null>(null);
   const { planner } = useTrackContext();
   const { courseMap } = useTrackContext().track.catalog;
   const residencyRequired = planner.residencyRequired;
@@ -257,6 +264,78 @@ export function PlannerPanel({
                   onChange={(e) => onRenameSemester(sem.id, e.target.value)}
                   onClick={(e) => e.stopPropagation()}
                 />
+                {otherScenarios.length > 0 && (
+                  <div className="sem-menu-wrap">
+                    <button
+                      type="button"
+                      className="btn-icon"
+                      title="Copy or move to another plan"
+                      aria-haspopup="menu"
+                      aria-expanded={openMenuSemId === sem.id}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setOpenMenuSemId((cur) =>
+                          cur === sem.id ? null : sem.id,
+                        );
+                      }}
+                    >
+                      ⋯
+                    </button>
+                    {openMenuSemId === sem.id && (
+                      <>
+                        <button
+                          type="button"
+                          className="sem-menu-scrim"
+                          aria-label="Close menu"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenMenuSemId(null);
+                          }}
+                        />
+                        <div
+                          className="sem-menu"
+                          role="menu"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div className="sem-menu-section">
+                            <p className="sem-menu-label">Copy to plan</p>
+                            {otherScenarios.map((sc) => (
+                              <button
+                                key={`copy-${sc.id}`}
+                                type="button"
+                                role="menuitem"
+                                className="sem-menu-item"
+                                onClick={() => {
+                                  onCopySemesterToScenario(sem.id, sc.id);
+                                  setOpenMenuSemId(null);
+                                }}
+                              >
+                                {sc.name}
+                              </button>
+                            ))}
+                          </div>
+                          <div className="sem-menu-section">
+                            <p className="sem-menu-label">Move to plan</p>
+                            {otherScenarios.map((sc) => (
+                              <button
+                                key={`move-${sc.id}`}
+                                type="button"
+                                role="menuitem"
+                                className="sem-menu-item"
+                                onClick={() => {
+                                  onMoveSemesterToScenario(sem.id, sc.id);
+                                  setOpenMenuSemId(null);
+                                }}
+                              >
+                                {sc.name}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
                 {semesters.length > 1 && (
                   <button
                     type="button"

@@ -1230,6 +1230,73 @@ body.drawer-open {
   margin-bottom: 0.4rem;
 }
 
+/* Per-semester "copy/move to plan" menu */
+.sem-menu-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.sem-menu-scrim {
+  position: fixed;
+  inset: 0;
+  background: transparent;
+  border: none;
+  padding: 0;
+  z-index: 30;
+  cursor: default;
+}
+
+.sem-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 31;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  padding: 0.35rem 0;
+  min-width: 11rem;
+  max-width: 14rem;
+}
+
+.sem-menu-section + .sem-menu-section {
+  border-top: 1px solid var(--border);
+  margin-top: 0.25rem;
+  padding-top: 0.25rem;
+}
+
+.sem-menu-label {
+  margin: 0;
+  padding: 0.25rem 0.7rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.sem-menu-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 0.42rem 0.7rem;
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sem-menu-item:hover {
+  background: color-mix(in srgb, var(--accent) 14%, var(--surface));
+  color: var(--accent);
+}
+
 .semester-name-input {
   flex: 1;
   border: none;

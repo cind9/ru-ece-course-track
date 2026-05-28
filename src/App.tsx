@@ -244,6 +244,57 @@ function AppContent({
     setScenarios((prev) => prev.map((s) => (s.id === id ? { ...s, name } : s)));
   }, []);
 
+  /**
+   * Copy a semester from the active scenario into another scenario.
+   * Skips any slots whose course is already planned in the target plan to
+   * avoid duplicating a course across two semesters in the same plan.
+   */
+  const copySemesterToScenario = useCallback(
+    (semesterId: string, targetScenarioId: string) => {
+      if (targetScenarioId === activeScenarioId) return;
+      const sourceSem = semesters.find((s) => s.id === semesterId);
+      const targetScenario = scenarios.find((s) => s.id === targetScenarioId);
+      if (!sourceSem || !targetScenario) return;
+
+      const targetPlannedSlots = new Set<string>();
+      for (const sem of targetScenario.semesters) {
+        for (const slot of sem.slots) targetPlannedSlots.add(slot.slotId);
+      }
+
+      const newSem: PlannerSemester = {
+        id: `sem-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        name: sourceSem.name,
+        term: sourceSem.term,
+        slots: sourceSem.slots.filter((s) => !targetPlannedSlots.has(s.slotId)),
+      };
+
+      setScenarios((prev) =>
+        prev.map((sc) =>
+          sc.id === targetScenarioId
+            ? { ...sc, semesters: [...sc.semesters, newSem] }
+            : sc,
+        ),
+      );
+    },
+    [activeScenarioId, semesters, scenarios],
+  );
+
+  const moveSemesterToScenario = useCallback(
+    (semesterId: string, targetScenarioId: string) => {
+      if (targetScenarioId === activeScenarioId) return;
+      copySemesterToScenario(semesterId, targetScenarioId);
+      setSemesters((prev) => {
+        const next = prev.filter((s) => s.id !== semesterId);
+        const final = next.length > 0 ? next : defaultSemesters();
+        if (activeSemesterId === semesterId) {
+          setActiveSemesterId(final[0].id);
+        }
+        return final;
+      });
+    },
+    [activeScenarioId, activeSemesterId, copySemesterToScenario, setSemesters],
+  );
+
   // ── Semester handlers ────────────────────────────────────────────────────────
   const addSlotToActiveSemester = useCallback(
     (slotId: string, chosenId: string, overridden = false) => {
@@ -487,6 +538,9 @@ function AppContent({
               canUndo={canUndo}
               onRedo={redoSemesters}
               canRedo={canRedo}
+              otherScenarios={scenarios.filter((s) => s.id !== activeScenarioId)}
+              onCopySemesterToScenario={copySemesterToScenario}
+              onMoveSemesterToScenario={moveSemesterToScenario}
             />
           </ResizablePanel>
         </div>
