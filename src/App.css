@@ -1168,6 +1168,42 @@ body.drawer-open {
 @media (max-width: 768px) {
   .mobile-toolbar { display: flex; }
 
+  /* ── Release the desktop "single-viewport" lock on mobile ──
+     The desktop layout is height: 100dvh with nested scrollers;
+     on a phone this leaves almost no room for the flowchart.
+     Mobile uses normal page scroll instead. */
+  html, body {
+    height: auto !important;
+    overflow: auto !important;
+  }
+  body.drawer-open {
+    overflow: hidden !important;
+  }
+  .app {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+  .app-main {
+    min-height: 0;
+    flex: 0 0 auto;
+  }
+  .app-main-center {
+    overflow: visible !important;
+    min-height: 0;
+    flex-direction: column;
+  }
+  .flowchart-wrapper {
+    overflow: visible !important;
+    height: auto !important;
+    flex: 0 0 auto !important;
+  }
+  .flowchart-scroll {
+    overflow-y: visible !important;
+    overflow-x: auto !important;
+    flex: 0 0 auto !important;
+  }
+
   /* Compact header on mobile to give the flowchart more room */
   .app-header {
     padding: 0.55rem 0.75rem 0.4rem;
