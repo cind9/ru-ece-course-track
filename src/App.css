@@ -1020,23 +1020,24 @@ body.resizing-row .panel-resize-edge--top::after {
 /* ── Mobile toolbar + drawer ──────────────────────────────────────────── */
 .mobile-toolbar {
   display: none;
-  gap: 0.5rem;
-  padding: 0.45rem 0.75rem;
+  align-items: stretch;
+  gap: 0.4rem;
+  padding: 0.4rem 0.6rem;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
-  z-index: 8;
+  z-index: 20;
 }
 
 .mobile-toggle {
-  flex: 1;
+  flex-shrink: 0;
   background: var(--bg);
   color: var(--text);
   border: 1px solid var(--border);
   border-radius: 999px;
-  padding: 0.5rem 0.9rem;
-  font-size: 0.85rem;
+  padding: 0.45rem 0.7rem;
+  font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
 }
@@ -1045,6 +1046,115 @@ body.resizing-row .panel-resize-edge--top::after {
   background: var(--accent);
   color: var(--surface);
   border-color: var(--accent);
+}
+
+/* Mobile active-semester chip (the main "Adding to:" picker) */
+.mobile-active-sem-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.mobile-active-sem {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+  color: var(--accent);
+  border: 1.5px solid var(--accent);
+  border-radius: 999px;
+  padding: 0.42rem 0.8rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+}
+
+.mobile-active-sem-prefix {
+  color: var(--muted);
+  font-weight: 500;
+  flex-shrink: 0;
+  font-size: 0.72rem;
+}
+
+.mobile-active-sem-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mobile-active-sem-caret {
+  font-size: 0.75rem;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.mobile-sem-picker-scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.25);
+  border: none;
+  padding: 0;
+  z-index: 30;
+  cursor: default;
+}
+
+.mobile-sem-picker {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 31;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+  padding: 0.35rem 0;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.mobile-sem-picker-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 0.6rem 0.85rem;
+  font: inherit;
+  font-size: 0.88rem;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.mobile-sem-picker-item:hover {
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+}
+
+.mobile-sem-picker-item--active {
+  color: var(--accent);
+  font-weight: 700;
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+}
+
+.mobile-sem-picker-item-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mobile-sem-picker-item-count {
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-weight: 500;
+  flex-shrink: 0;
 }
 
 .mobile-drawer-scrim {
@@ -1057,6 +1167,20 @@ body.drawer-open {
 
 @media (max-width: 768px) {
   .mobile-toolbar { display: flex; }
+
+  /* Compact header on mobile to give the flowchart more room */
+  .app-header {
+    padding: 0.55rem 0.75rem 0.4rem;
+  }
+  .app-header h1 { font-size: 1rem; margin: 0; }
+  .app-header-top { gap: 0.5rem; }
+  .subtitle,
+  .flowchart-ref { display: none; }
+  .degree-tab {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.78rem;
+  }
+  .scenario-tabs--top { margin-top: 0.45rem; }
 
   .mobile-drawer-scrim {
     display: block;

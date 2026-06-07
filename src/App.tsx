@@ -71,6 +71,7 @@ function AppContent({
   );
   const [mobilePlannerOpen, setMobilePlannerOpen] = useState(false);
   const [mobileElectivesOpen, setMobileElectivesOpen] = useState(false);
+  const [mobileSemPickerOpen, setMobileSemPickerOpen] = useState(false);
   const isMobile = viewportWidth <= 768;
 
   useEffect(() => {
@@ -397,6 +398,16 @@ function AppContent({
     });
   };
 
+  const handleActiveSemesterChange = useCallback(
+    (id: string) => {
+      setActiveSemesterId(id);
+      if (isMobile) setMobilePlannerOpen(false);
+    },
+    [isMobile],
+  );
+
+  const activeSemester = semesters.find((s) => s.id === activeSemesterId);
+
   const addSemester = () => {
     const n = semesters.length + 1;
     const sem = newSemester(`Semester ${n}`);
@@ -454,6 +465,54 @@ function AppContent({
 
       {isMobile && (
         <div className="mobile-toolbar">
+          <div className="mobile-active-sem-wrap">
+            <button
+              type="button"
+              className="mobile-active-sem"
+              onClick={() => setMobileSemPickerOpen((v) => !v)}
+              aria-haspopup="menu"
+              aria-expanded={mobileSemPickerOpen}
+            >
+              <span className="mobile-active-sem-prefix">Adding to:</span>
+              <span className="mobile-active-sem-name">
+                {activeSemester?.name ?? "—"}
+              </span>
+              <span className="mobile-active-sem-caret" aria-hidden>
+                ▾
+              </span>
+            </button>
+            {mobileSemPickerOpen && (
+              <>
+                <button
+                  type="button"
+                  className="mobile-sem-picker-scrim"
+                  aria-label="Close semester picker"
+                  onClick={() => setMobileSemPickerOpen(false)}
+                />
+                <div className="mobile-sem-picker" role="menu">
+                  {semesters.map((sem) => (
+                    <button
+                      key={sem.id}
+                      type="button"
+                      role="menuitem"
+                      className={`mobile-sem-picker-item${sem.id === activeSemesterId ? " mobile-sem-picker-item--active" : ""}`}
+                      onClick={() => {
+                        setActiveSemesterId(sem.id);
+                        setMobileSemPickerOpen(false);
+                      }}
+                    >
+                      <span className="mobile-sem-picker-item-name">
+                        {sem.name}
+                      </span>
+                      <span className="mobile-sem-picker-item-count">
+                        {sem.slots.length} course{sem.slots.length === 1 ? "" : "s"}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
           <button
             type="button"
             className={`mobile-toggle${mobilePlannerOpen ? " mobile-toggle--active" : ""}`}
@@ -463,7 +522,7 @@ function AppContent({
             }}
             aria-pressed={mobilePlannerOpen}
           >
-            Planner
+            Plan
           </button>
           <button
             type="button"
@@ -474,7 +533,7 @@ function AppContent({
             }}
             aria-pressed={mobileElectivesOpen}
           >
-            Electives
+            Elec
           </button>
         </div>
       )}
@@ -520,7 +579,7 @@ function AppContent({
             <PlannerPanel
               semesters={semesters}
               activeSemesterId={activeSemesterId}
-              onActiveChange={setActiveSemesterId}
+              onActiveChange={handleActiveSemesterChange}
               onAddSemester={addSemester}
               onRemoveSemester={removeSemester}
               onRenameSemester={(id, name) =>
