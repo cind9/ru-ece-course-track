@@ -245,6 +245,23 @@ function AppContent({
     setScenarios((prev) => prev.map((s) => (s.id === id ? { ...s, name } : s)));
   }, []);
 
+  const reorderScenarios = useCallback(
+    (fromIndex: number, toIndex: number) => {
+      if (fromIndex === toIndex) return;
+      setScenarios((prev) => {
+        if (
+          fromIndex < 0 || fromIndex >= prev.length ||
+          toIndex < 0 || toIndex >= prev.length
+        ) return prev;
+        const next = [...prev];
+        const [moved] = next.splice(fromIndex, 1);
+        next.splice(toIndex, 0, moved);
+        return next;
+      });
+    },
+    [],
+  );
+
   /**
    * Copy a semester from the active scenario into another scenario.
    * Skips any slots whose course is already planned in the target plan to
@@ -388,6 +405,28 @@ function AppContent({
     setAddError(null);
   };
 
+  const setSlotCustomName = useCallback(
+    (semesterId: string, slotId: string, name: string) => {
+      const trimmed = name.trim();
+      setSemesters((prev) =>
+        prev.map((sem) => {
+          if (sem.id !== semesterId) return sem;
+          return {
+            ...sem,
+            slots: sem.slots.map((s) =>
+              s.slotId === slotId
+                ? trimmed
+                  ? { ...s, customName: trimmed }
+                  : (({ customName: _drop, ...rest }) => rest)(s)
+                : s,
+            ),
+          };
+        }),
+      );
+    },
+    [setSemesters],
+  );
+
   const reorderSemesters = (fromIndex: number, toIndex: number) => {
     if (fromIndex === toIndex) return;
     setSemesters((prev) => {
@@ -460,6 +499,7 @@ function AppContent({
           onAddScenario={addScenario}
           onRemoveScenario={removeScenario}
           onRenameScenario={renameScenario}
+          onReorderScenarios={reorderScenarios}
         />
       </header>
 
@@ -600,6 +640,7 @@ function AppContent({
               otherScenarios={scenarios.filter((s) => s.id !== activeScenarioId)}
               onCopySemesterToScenario={copySemesterToScenario}
               onMoveSemesterToScenario={moveSemesterToScenario}
+              onSetSlotCustomName={setSlotCustomName}
             />
           </ResizablePanel>
         </div>

@@ -593,6 +593,34 @@ body.resizing-row .panel-resize-edge--top::after {
   line-height: 1.25;
 }
 
+.planned-course-title--custom {
+  color: var(--accent);
+}
+
+.planned-course-name-input {
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.25;
+  width: 100%;
+  background: var(--surface);
+  border: 1.5px solid var(--accent);
+  border-radius: 5px;
+  padding: 0.2rem 0.35rem;
+  outline: none;
+  color: var(--text);
+  box-sizing: border-box;
+}
+
+.btn-icon--name {
+  font-size: 0.78rem;
+  opacity: 0.55;
+}
+
+.btn-icon--name:hover {
+  opacity: 1;
+  color: var(--accent);
+}
+
 .planned-course-meta {
   font-size: 0.72rem;
   color: var(--muted);
@@ -911,11 +939,30 @@ body.resizing-row .panel-resize-edge--top::after {
   background: color-mix(in srgb, var(--border) 25%, var(--surface));
   margin-bottom: -1px;
   padding: 0 0.25rem 0 0.6rem;
-  transition: background 0.15s;
+  transition: background 0.15s, transform 0.1s, box-shadow 0.1s;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: pan-y;
+}
+
+.scenario-tab:active {
+  cursor: grabbing;
 }
 
 .scenario-tab:hover {
   background: var(--surface);
+}
+
+.scenario-tab--dragging {
+  opacity: 0.5;
+  transform: scale(0.96);
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.scenario-tab--drop-target {
+  outline: 2px dashed var(--accent);
+  outline-offset: -2px;
 }
 
 .scenario-tab--active {

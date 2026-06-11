@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { PlanScenario } from "../types";
 
 interface ScenarioTabsProps {
@@ -8,6 +8,7 @@ interface ScenarioTabsProps {
   onAddScenario: () => void;
   onRemoveScenario: (id: string) => void;
   onRenameScenario: (id: string, name: string) => void;
+  onReorderScenarios: (fromIndex: number, toIndex: number) => void;
 }
 
 export function ScenarioTabs({
@@ -17,8 +18,89 @@ export function ScenarioTabs({
   onAddScenario,
   onRemoveScenario,
   onRenameScenario,
+  onReorderScenarios,
 }: ScenarioTabsProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  // Desktop HTML5 drag state
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [dropIndex, setDropIndex] = useState<number | null>(null);
+
+  // Mobile long-press touch-drag state
+  const [touchDragIndex, setTouchDragIndex] = useState<number | null>(null);
+  const [touchDropIndex, setTouchDropIndex] = useState<number | null>(null);
+  const touchDragActiveRef = useRef(false);
+  const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const touchStartPosRef = useRef<{ x: number; y: number } | null>(null);
+
+  const handleDocTouchMove = useCallback((e: TouchEvent) => {
+    if (!touchDragActiveRef.current) return;
+    e.preventDefault();
+    const touch = e.touches[0];
+    const el = document.elementFromPoint(touch.clientX, touch.clientY);
+    if (!el) return;
+    const tabEl = el.closest<HTMLElement>("[data-scenario-index]");
+    if (tabEl) {
+      const idx = parseInt(tabEl.dataset.scenarioIndex ?? "", 10);
+      if (!isNaN(idx)) setTouchDropIndex(idx);
+    }
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener("touchmove", handleDocTouchMove, {
+      passive: false,
+    });
+    return () =>
+      document.removeEventListener("touchmove", handleDocTouchMove);
+  }, [handleDocTouchMove]);
+
+  const cancelLongPress = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  };
+
+  const handleTouchStart = (index: number, e: React.TouchEvent) => {
+    const target = e.target as HTMLElement;
+    // Don't start drag from interactive controls
+    if (target.closest("button.scenario-tab-close, button.scenario-tab-edit, input"))
+      return;
+    const touch = e.touches[0];
+    touchStartPosRef.current = { x: touch.clientX, y: touch.clientY };
+    longPressTimerRef.current = setTimeout(() => {
+      touchDragActiveRef.current = true;
+      (document.activeElement as HTMLElement | null)?.blur();
+      if (navigator.vibrate) navigator.vibrate(40);
+      setTouchDragIndex(index);
+      setTouchDropIndex(index);
+    }, 450);
+  };
+
+  const handleTouchMovePre = (e: React.TouchEvent) => {
+    if (touchDragActiveRef.current) return;
+    if (!touchStartPosRef.current) return;
+    const touch = e.touches[0];
+    const dx = touch.clientX - touchStartPosRef.current.x;
+    const dy = touch.clientY - touchStartPosRef.current.y;
+    if (Math.sqrt(dx * dx + dy * dy) > 8) cancelLongPress();
+  };
+
+  const handleTouchEnd = () => {
+    cancelLongPress();
+    if (
+      touchDragActiveRef.current &&
+      touchDragIndex !== null &&
+      touchDropIndex !== null &&
+      touchDragIndex !== touchDropIndex
+    ) {
+      onReorderScenarios(touchDragIndex, touchDropIndex);
+    }
+    touchDragActiveRef.current = false;
+    setTouchDragIndex(null);
+    setTouchDropIndex(null);
+    touchStartPosRef.current = null;
+  };
 
   return (
     <div
@@ -26,15 +108,59 @@ export function ScenarioTabs({
       role="tablist"
       aria-label="Plan scenarios"
     >
-      {scenarios.map((sc) => {
+      {scenarios.map((sc, index) => {
         const isActive = sc.id === activeScenarioId;
         const isEditing = editingId === sc.id;
+        const isDragging =
+          dragIndex === index || touchDragIndex === index;
+        const isDropTarget =
+          (dropIndex === index && dragIndex !== null && dragIndex !== index) ||
+          (touchDropIndex === index &&
+            touchDragIndex !== null &&
+            touchDragIndex !== index);
         return (
           <div
             key={sc.id}
-            className={`scenario-tab${isActive ? " scenario-tab--active" : ""}`}
+            data-scenario-index={index}
+            className={`scenario-tab${isActive ? " scenario-tab--active" : ""}${isDragging ? " scenario-tab--dragging" : ""}${isDropTarget ? " scenario-tab--drop-target" : ""}`}
             role="tab"
             aria-selected={isActive}
+            draggable={!isEditing}
+            onDragStart={(e) => {
+              if (isEditing) {
+                e.preventDefault();
+                return;
+              }
+              const t = e.target as HTMLElement;
+              if (t.closest("button, input")) {
+                e.preventDefault();
+                return;
+              }
+              setDragIndex(index);
+              e.dataTransfer.effectAllowed = "move";
+            }}
+            onDragOver={(e) => {
+              if (dragIndex === null) return;
+              e.preventDefault();
+              setDropIndex(index);
+              e.dataTransfer.dropEffect = "move";
+            }}
+            onDrop={(e) => {
+              if (dragIndex !== null && dragIndex !== index) {
+                e.preventDefault();
+                onReorderScenarios(dragIndex, index);
+              }
+              setDragIndex(null);
+              setDropIndex(null);
+            }}
+            onDragEnd={() => {
+              setDragIndex(null);
+              setDropIndex(null);
+            }}
+            onTouchStart={(e) => handleTouchStart(index, e)}
+            onTouchMove={handleTouchMovePre}
+            onTouchEnd={handleTouchEnd}
+            onTouchCancel={handleTouchEnd}
           >
             {isEditing ? (
               <input
@@ -64,8 +190,8 @@ export function ScenarioTabs({
                 }}
                 title={
                   isActive
-                    ? "Double-click to rename"
-                    : "Click to switch · double-click to rename"
+                    ? "Double-click to rename · drag to reorder"
+                    : "Click to switch · drag to reorder"
                 }
               >
                 {sc.name}

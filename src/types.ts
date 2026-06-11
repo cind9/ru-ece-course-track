@@ -24,6 +24,8 @@ export interface PlannedSlot {
   chosenId: string;
   /** Added without prerequisites (advisor override). */
   overridden?: boolean;
+  /** User-supplied name (e.g. specific course filling an elective slot). */
+  customName?: string;
 }
 
 export interface PlannerSemester {

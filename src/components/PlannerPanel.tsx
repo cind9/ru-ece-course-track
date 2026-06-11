@@ -23,6 +23,7 @@ interface PlannerPanelProps {
   otherScenarios: PlanScenario[];
   onCopySemesterToScenario: (semesterId: string, targetScenarioId: string) => void;
   onMoveSemesterToScenario: (semesterId: string, targetScenarioId: string) => void;
+  onSetSlotCustomName: (semesterId: string, slotId: string, name: string) => void;
 }
 
 export function PlannerPanel({
@@ -45,8 +46,10 @@ export function PlannerPanel({
   otherScenarios,
   onCopySemesterToScenario,
   onMoveSemesterToScenario,
+  onSetSlotCustomName,
 }: PlannerPanelProps) {
   const [openMenuSemId, setOpenMenuSemId] = useState<string | null>(null);
+  const [editingSlotKey, setEditingSlotKey] = useState<string | null>(null);
   const { planner } = useTrackContext();
   const { courseMap } = useTrackContext().track.catalog;
   const residencyRequired = planner.residencyRequired;
@@ -357,12 +360,49 @@ export function PlannerPanel({
                   sem.slots.map((sl) => {
                     const c = courseMap[sl.chosenId];
                     if (!c) return null;
+                    const isElective = c.category === "elective";
+                    const slotKey = `${sem.id}:${sl.slotId}`;
+                    const isEditingName = editingSlotKey === slotKey;
+                    const displayTitle = sl.customName || c.title;
                     return (
                       <li key={sl.slotId}>
                         <span className="planned-course-text">
-                          <strong className="planned-course-title">
-                            {c.title}
-                          </strong>
+                          {isEditingName ? (
+                            <input
+                              className="planned-course-name-input"
+                              defaultValue={sl.customName ?? ""}
+                              placeholder={c.title}
+                              autoFocus
+                              maxLength={80}
+                              onClick={(e) => e.stopPropagation()}
+                              onBlur={(e) => {
+                                onSetSlotCustomName(
+                                  sem.id,
+                                  sl.slotId,
+                                  e.target.value,
+                                );
+                                setEditingSlotKey(null);
+                              }}
+                              onKeyDown={(e) => {
+                                e.stopPropagation();
+                                if (e.key === "Enter")
+                                  (e.target as HTMLInputElement).blur();
+                                if (e.key === "Escape")
+                                  setEditingSlotKey(null);
+                              }}
+                            />
+                          ) : (
+                            <strong
+                              className={`planned-course-title${sl.customName ? " planned-course-title--custom" : ""}`}
+                              title={
+                                sl.customName
+                                  ? `Filling: ${c.title}`
+                                  : c.title
+                              }
+                            >
+                              {displayTitle}
+                            </strong>
+                          )}
                           <span className="planned-course-meta">
                             {c.label} · {c.credits} credits
                             {sl.overridden ? " · advisor override" : ""}
@@ -374,6 +414,24 @@ export function PlannerPanel({
                             )}
                           </span>
                         </span>
+                        {isElective && !isEditingName && (
+                          <button
+                            type="button"
+                            className="btn-icon btn-icon--name"
+                            title={
+                              sl.customName
+                                ? "Edit custom name"
+                                : "Name this elective"
+                            }
+                            aria-label="Edit elective name"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEditingSlotKey(slotKey);
+                            }}
+                          >
+                            ✎
+                          </button>
+                        )}
                         <button
                           type="button"
                           className="btn-icon"

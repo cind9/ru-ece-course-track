@@ -80,7 +80,16 @@ function sanitizeSemesters(
         if (!slotId || !chosenId || seenSlots.has(slotId)) continue;
         if (!courseMap[slotId] || !courseMap[chosenId]) continue;
         seenSlots.add(slotId);
-        slots.push({ slotId, chosenId, overridden: s.overridden === true });
+        const customName =
+          typeof s.customName === "string" && s.customName.trim().length > 0
+            ? s.customName.trim().slice(0, 80)
+            : undefined;
+        slots.push({
+          slotId,
+          chosenId,
+          overridden: s.overridden === true,
+          ...(customName ? { customName } : {}),
+        });
       }
     }
     semesters.push({ id, name, term: row.term, slots });
